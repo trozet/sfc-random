@@ -210,13 +210,13 @@ else
 fi
 
 spin
-if ! $build_kernel; then
-  if rpmbuild -bb -D "kversion $kernel_version" -D "kflavors default" --without check rhel/openvswitch-${os_type}.spec; then
-    echo "RPM built successfully!!"
-  else
-    echo "Unable to build any RPM.  Check Logs. Exiting..."
-    exit 1
-  fi
+echo "Building userspace module"
+if rpmbuild -bb -D "kversion $kernel_version" -D "kflavors default" --without check rhel/openvswitch-${os_type}.spec; then
+  echo "RPM built successfully!!"
+  build_user=true
+else
+  echo "Unable to build user RPM.  Check Logs. Exiting..."
+  exit 1
 fi
 spin
 
