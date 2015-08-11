@@ -83,6 +83,7 @@ git clean -x -d -f
 
 spin
 echos "Removing old ovs configuration."
+spin
 sudo systemctl stop openvswitch
 spin
 sudo kill `cd /var/run/openvswitch && cat ovsdb-server.pid ovs-vswitchd.pid`
@@ -127,6 +128,8 @@ spin
 #sudo apt-get install -y build-essential
 sudo yum groupinstall -y "Development Tools" "Development Libraries"
 spin
+sudo yum groupinstall -y "Additional Development"
+spin
 sudo yum install -y fakeroot
 spin
 #sudo apt-get install -y debhelper
@@ -143,7 +146,7 @@ sudo yum install -y openssl
 spin
 sudo yum install -y graphviz
 spin
-sudo yum install -- '*python*' -python3-queuelib -python-django-federated-login -gcc-python3-plugin -python-qpid_messaging -gcc-python2-plugin -gcc-python3-debug-plugin -python-django* -django* -gcc-python2-debug-plugin -python3-django15-1.5.8-1 python-django-bash-completion* -python-django15*
+sudo yum install -y '*python*' -python3-queuelib -python-django-federated-login -gcc-python3-plugin -python-qpid_messaging -gcc-python2-plugin -gcc-python3-debug-plugin -python-django* -django* -gcc-python2-debug-plugin -python3-django15-1.5.8-1 python-django-bash-completion* -python-django15*
 spin
 sudo yum install -y procps
 spin
@@ -166,10 +169,11 @@ make dist
 spin
 cp openvswitch.*.tar.gz ~/
 spin
-echos "openvswitch built,..moving to ${HOME}/rpmbuild/SOURCES"
+echos "openvswitch built...moving to ${HOME}/rpmbuild/SOURCES"
 spin
 if [ ! -d ~/rpmbuild/SOURCES ]; then
   echo "creating rpmbuild dir..."
+  mkdir -p ~/rpmbuild/SOURCES
 fi
 spin
 mv -f openvswitch-*.tar.gz ~/rpmbuild/SOURCES/
@@ -180,12 +184,12 @@ tar -xzf openvswitch*.tar.gz
 spin
 ls
 cd openvswitch-*
-if [ $(cat etc/*release* | grep -i Fedora) ]; then
+if cat /etc/*release* | grep ID= | grep -i Fedora; then
   os_type=fedora
-elif [ $(cat /etc/*release* | grep -i CentOS|rhel) ]; then
+elif cat /etc/*release* | grep ID= | grep -Ei 'CentOS|rhel'; then
   os_type=rhel6
 else
-  echo "ERROR: OS Type is not Fedora or RHEL/CentOS..exiting!"
+  echo 'ERROR: OS Type is not Fedora or RHEL/CentOS..exiting!'
   exit 1
 fi
 spin
@@ -211,7 +215,7 @@ fi
 
 spin
 echo "Building userspace module"
-if rpmbuild -bb -D "kversion $kernel_version" -D "kflavors default" --without check rhel/openvswitch-${os_type}.spec; then
+if rpmbuild -bb -D "kversion $kernel_version" -D "kflavors default" --without check rhel/openvswitch.spec; then
   echo "RPM built successfully!!"
   build_user=true
 else
@@ -221,12 +225,12 @@ fi
 spin
 
 popd
-pushd ~/rpmbuild/RPMS/
+pushd ~/rpmbuild/RPMS/x86_64/
 echo "Installing RPM..."
 if sudo rpm -i openvswitch-*.rpm; then
   echo "Able to install openvswitch!"
 else
-  endspin "Unable to install openvswitch! Check ~/rpmbuild/RPMS/"
+  endspin "Unable to install openvswitch! Check ~/rpmbuild/RPMS/x86_64/"
   exit 1
 fi
 popd
