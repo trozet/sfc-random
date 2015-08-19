@@ -1,0 +1,51 @@
+1. Bring up a devstack capable environment.  I use a Vagrant Centos7 VM bridged to public internet (8 gig of RAM) - see Vagrantfile
+2. If using the Vagrant method:
+    a.  vagrant ssh
+    b.  sudo systemctl stop NetworkManager
+    c.  sudo systemctl disable NetworkManager
+    d.  sudo systemctl restart network
+    e.  verify default route to public network
+    f.  sudo -y yum update
+    g.  reboot (to update kernel)
+    h.  vagrant ssh
+    i.  modify your /etc/hosts and hostname to something other than localhost
+    j.  install git
+    k.  sudo systemctl stop firewalld
+    l.  sudo yum -y remove firewalld
+3. git clone -b stable/kilo https://github.com/openstack-dev/devstack
+4. git clone https://github.com/trozet/sfc-random.git
+5. cp -f sfc-random/local.conf devstack/; cd devstack
+6. Modify the public IPs in local.conf -> sed -i 's/10.6.65.37/<your IP>/g' local.conf 
+7. ./stack.sh
+8. Create the "net_mgmt" network:
+    a.  source devstack/accrc/admin/admin
+    b.  neutron net-create net_mgmt --provider:network_type=vxlan --provider:segmentation_id 1005
+    c.  neutron subnet-create net_mgmt 11.0.0.0/24
+    d.  
+9. Import VNFD for test-VNF:
+    a.  tacker vnfd-create --vnfd-file ../sfc-random/test-vnfd.yaml
+10. Deploy VNFs:
+    a.  tacker vnf-create --name testVNF1 --vnfd-name test-vnfd
+    b.  tacker vnf-create --name testVNF2 --vnfd-name test-vnfd
+    c.  Tacker will kick off creating the VNFs via Heat.  For some reason it does this as the service tenant.  So you
+        can check heat by using the "heat" user and doing "heat stack-list".
+    d.  Wait a few minutes and then check VNF status is ACTIVE: tacker vnf-list
+11. Create SFC (note at this point only SF and SFF will created in ODL, work still needs to be done to render the chain
+    into OVS.  This part has to be done in horizon for now, as I haven't updated the tacker client shell code with the
+    command):
+    a.  Login to Horizon (admin//devstack)
+    b.  Open another tab in your browser for ODL SFC -> <vm ip>:8181/sfc/index.html
+    c.  In Horizon->NFV->VNF Manager: You should see your 2 VNFs that you created
+    d.  Click "Service Function Chaining" Tab, then "Create SFC"
+    e.  Enter any name, select "Create SFC" from VNFFG Source
+    f.  From the drop down boxes (VNF1, VNF2), select your created VNFs, Create SFC
+    g.  You will get a horizon error (ignore it)
+    h.  Go back to your ODL SFC tab.  You should see SFF and SF created!
+
+To re-stack:
+1.  ./unstack.sh
+2.  sudo systemctl stop openvswitch
+3.  sudo rm /etc/openvswitch/conf.db
+4.  sudo ./clean.sh (only if you want to remove mariadb)
+5.  edit local.conf -> RECLONE=FALSE (if you don't want to reclone all the git repos)
+6.  ./stack.sh
