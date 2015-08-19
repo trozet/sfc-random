@@ -21,7 +21,6 @@
     a.  source devstack/accrc/admin/admin
     b.  neutron net-create net_mgmt --provider:network_type=vxlan --provider:segmentation_id 1005
     c.  neutron subnet-create net_mgmt 11.0.0.0/24
-    d.  
 9. Import VNFD for test-VNF:
     a.  tacker vnfd-create --vnfd-file ../sfc-random/test-vnfd.yaml
 10. Deploy VNFs:
