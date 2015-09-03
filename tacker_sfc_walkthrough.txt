@@ -5,7 +5,7 @@
     c.  sudo systemctl disable NetworkManager
     d.  sudo systemctl restart network
     e.  verify default route to public network
-    f.  sudo -y yum update
+    f.  sudo yum -y update
     g.  reboot (to update kernel)
     h.  vagrant ssh
     i.  modify your /etc/hosts and hostname to something other than localhost
