@@ -29,17 +29,13 @@
     c.  Tacker will kick off creating the VNFs via Heat.  For some reason it does this as the service tenant.  So you
         can check heat by using the "heat" user and doing "heat stack-list".
     d.  Wait a few minutes and then check VNF status is ACTIVE: tacker vnf-list
-11. Create SFC (note at this point only SF and SFF will created in ODL, work still needs to be done to render the chain
-    into OVS.  This part has to be done in horizon for now, as I haven't updated the tacker client shell code with the
-    command):
-    a.  Login to Horizon (admin//devstack)
-    b.  Open another tab in your browser for ODL SFC -> <vm ip>:8181/sfc/index.html
-    c.  In Horizon->NFV->VNF Manager: You should see your 2 VNFs that you created
-    d.  Click "Service Function Chaining" Tab, then "Create SFC"
-    e.  Enter any name, select "Create SFC" from VNFFG Source
-    f.  From the drop down boxes (VNF1, VNF2), select your created VNFs, Create SFC
-    g.  You will get a horizon error (ignore it)
-    h.  Go back to your ODL SFC tab.  You should see SFF and SF created!
+11. Create SFC via python client(will render the chain into ODL):
+    a.  tacker sfc-create --name mychain --chain testVNF2,testVNF1 --symmetrical True
+    b.  This will create a chain in ODL, with 2 Rendered Service Paths (one for reverse since symmetrical)
+    c.  tacker sfc-show mychain (check to make sure your SFC is now "Active")
+    d.  Open another tab in your browser for ODL SFC -> <vm ip>:8181/sfc/index.html
+    e.  If you click on "Service Function Paths" at the top, then "Rendered Service Paths" you should see
+        the RSPs created and their ID's should match the "instance_id" given in the tacker sfc-show output
 
 To re-stack:
 1.  ./unstack.sh
