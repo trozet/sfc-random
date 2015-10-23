@@ -9,16 +9,19 @@
     g.  reboot (to update kernel)
     h.  vagrant ssh
     i.  modify your /etc/hosts and hostname to something other than localhost
-    j.  install git
-    k.  sudo systemctl stop firewalld
-    l.  sudo yum -y remove firewalld
+    j.  modify your /etc/resolv.conf with the following:
+        search <your new domain name from step 2i>
+        nameserver 8.8.8.8
+    k.  install git
+    l.  sudo systemctl stop firewalld
+    m.  sudo yum -y remove firewalld
 3. git clone -b stable/kilo https://github.com/openstack-dev/devstack
 4. git clone https://github.com/trozet/sfc-random.git
 5. cp -f sfc-random/local.conf devstack/; cd devstack
 6. Modify the public IPs in local.conf -> sed -i 's/10.6.65.37/<your IP>/g' local.conf 
 7. ./stack.sh
 8. Create the "net_mgmt" network:
-    a.  source devstack/accrc/admin/admin
+    a.  source accrc/admin/admin
     b.  neutron net-create net_mgmt --provider:network_type=vxlan --provider:segmentation_id 1005
     c.  neutron subnet-create net_mgmt 11.0.0.0/24
 9. Import VNFD for test-VNF:
