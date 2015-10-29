@@ -1,20 +1,32 @@
-1. Bring up a devstack capable environment.  I use a Vagrant Centos7 VM bridged to public internet (8 gig of RAM) - see Vagrantfile
+1. Bring up a devstack capable environment.  The one used by this demo is a Centos 7 box (8 gig of RAM),
+   which already has nshv8 OVS built/installed.  To use this box:
+    a.  git clone https://github.com/trozet/sfc-random.git (you may have already done this)
+    b.  create a directory with enough space for at least 40Gig: mkdir ~/mytackerVM
+    c.  cp sfc-random/Vagrantfile ~/mytackerVM/
+    d.  cd ~/mytackerVM; vagrant up
+    e.  you will be prompted for a network adapter to bridge to.  Choose your interface with internet
+        connectivity
+    f.  you also may be asked for a password, just enter "vagrant"
+    g.  NOTE: when you vagrant up you will probably get an error saying failed to mount with vboxsf
+        this failure is safe to ignore, and will not impact the rest of the steps
 2. If using the Vagrant method:
     a.  vagrant ssh
     b.  sudo systemctl stop NetworkManager
     c.  sudo systemctl disable NetworkManager
     d.  sudo systemctl restart network
     e.  verify default route to public network
-    f.  sudo yum -y update
-    g.  reboot (to update kernel)
-    h.  vagrant ssh
-    i.  modify your /etc/hosts and hostname to something other than localhost
-    j.  modify your /etc/resolv.conf with the following:
-        search <your new domain name from step 2i>
+    f.  sudo ln -s /var/run/openvswitch /usr/local/var/run/
+    g.  sudo systemctl restart openvswitch
+    h.  modify your /etc/hosts and hostname to something other than localhost. Example:
+        sudo hostnamectl set-hostname tacker.tackerdomain.com
+        add to /etc/hosts:
+        <vm ip>  tacker tacker.tackerdomain.com
+    i.  modify your /etc/resolv.conf with the following:
+        search <your new domain name from step 2h>
         nameserver 8.8.8.8
-    k.  install git
-    l.  sudo systemctl stop firewalld
-    m.  sudo yum -y remove firewalld
+    j.  install git
+    k.  sudo systemctl stop firewalld
+    l.  sudo yum -y remove firewalld
 3. git clone -b stable/kilo https://github.com/openstack-dev/devstack
 4. git clone https://github.com/trozet/sfc-random.git
 5. cp -f sfc-random/local.conf devstack/; cd devstack
