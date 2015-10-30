@@ -51,6 +51,8 @@
     d.  Open another tab in your browser for ODL SFC -> <vm ip>:8181/sfc/index.html
     e.  If you click on "Service Function Paths" at the top, then "Rendered Service Paths" you should see
         the RSPs created and their ID's should match the "instance_id" given in the tacker sfc-show output
+    f.  You can now see NSH flows added to OVS br-int by doing the following:
+        sudo ovs-ofctl -O OpenFlow13 dump-flows br-int
 
 To re-stack:
 1.  ./unstack.sh
