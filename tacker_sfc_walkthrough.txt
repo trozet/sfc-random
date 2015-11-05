@@ -33,7 +33,8 @@
 6. Modify the public IPs in local.conf -> sed -i 's/10.6.65.37/<your IP>/g' local.conf 
 7. ./stack.sh
 8. Create the "net_mgmt" network:
-    a.  source accrc/admin/admin
+    a.  cp accrc/admin/admin accrc/admin/heat; and modify the OS_USERNAME="heat" and
+        OS_TENANT_NAME="service"
     b.  neutron net-create net_mgmt --provider:network_type=vxlan --provider:segmentation_id 1005
     c.  neutron subnet-create net_mgmt 11.0.0.0/24
 9. Import VNFD for test-VNF:
