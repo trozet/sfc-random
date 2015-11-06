@@ -7,27 +7,27 @@
     e.  you will be prompted for a network adapter to bridge to.  Choose your interface with internet
         connectivity
     f.  you also may be asked for a password, just enter "vagrant"
-    g.  NOTE: when you vagrant up you will probably get an error saying failed to mount with vboxsf
-        this failure is safe to ignore, and will not impact the rest of the steps
 2. If using the Vagrant method:
     a.  vagrant ssh
-    b.  sudo systemctl stop NetworkManager
-    c.  sudo systemctl disable NetworkManager
-    d.  sudo systemctl restart network
-    e.  verify default route to public network
-    f.  sudo ln -s /var/run/openvswitch /usr/local/var/run/
-    g.  sudo systemctl restart openvswitch
-    h.  modify your /etc/hosts and hostname to something other than localhost. Example:
+    b.  sudo systemctl stop NetworkManager ; \
+        sudo systemctl disable NetworkManager ; \
+        sudo systemctl restart network
+    c.  verify default route to public network (ip route)
+    d.  sudo systemctl stop openvswitch ; \
+        sudo rm -rf /usr/local/var/run/openvswitch ; \
+        sudo ln -s /var/run/openvswitch /usr/local/var/run/ ; \
+        sudo systemctl start openvswitch
+    e.  modify your /etc/hosts and hostname to something other than localhost. Example:
         sudo hostnamectl set-hostname tacker.tackerdomain.com
         add to /etc/hosts:
-        <vm ip>  tacker tacker.tackerdomain.com
-    i.  modify your /etc/resolv.conf with the following:
-        search <your new domain name from step 2h>
+        <vm_ip_of_public_interface>  tacker tacker.tackerdomain.com
+    f.  modify your /etc/resolv.conf with the following:
+        search <your new domain name from step 2e>
         nameserver 8.8.8.8
-    j.  install git
-    k.  sudo systemctl stop firewalld
-    l.  sudo yum -y remove firewalld
-3. git clone -b stable/kilo https://github.com/openstack-dev/devstack
+    g.  install git  (sudo yum install -y git)
+    h.  sudo systemctl stop firewalld ; \
+        sudo yum -y remove firewalld
+3. git clone -b stable/liberty https://github.com/openstack-dev/devstack
 4. git clone https://github.com/trozet/sfc-random.git
 5. cp -f sfc-random/local.conf devstack/; cd devstack
 6. Modify the public IPs in local.conf -> sed -i 's/10.6.65.37/<your IP>/g' local.conf 
@@ -35,8 +35,9 @@
 8. Create the "net_mgmt" network:
     a.  cp accrc/admin/admin accrc/admin/heat; and modify the OS_USERNAME="heat" and
         OS_TENANT_NAME="service"
-    b.  neutron net-create net_mgmt --provider:network_type=vxlan --provider:segmentation_id 1005
-    c.  neutron subnet-create net_mgmt 11.0.0.0/24
+    b.  source accrc/admin/heat
+    c.  neutron net-create net_mgmt --provider:network_type=vxlan --provider:segmentation_id 1005
+    d.  neutron subnet-create net_mgmt 11.0.0.0/24
 9. Import VNFD for test-VNF:
     a.  tacker vnfd-create --vnfd-file ../sfc-random/test-vnfd.yaml
 10. Deploy VNFs:
