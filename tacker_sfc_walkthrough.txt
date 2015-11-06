@@ -34,7 +34,7 @@
 7. ./stack.sh
 8. Create the "net_mgmt" network:
     a.  cp accrc/admin/admin accrc/admin/heat; and modify the OS_USERNAME="heat" and
-        OS_TENANT_NAME="service"
+        export OS_TENANT_NAME="service"
     b.  source accrc/admin/heat
     c.  neutron net-create net_mgmt --provider:network_type=vxlan --provider:segmentation_id 1005
     d.  neutron subnet-create net_mgmt 11.0.0.0/24
