@@ -10,8 +10,8 @@ service_properties:
 vdus:
   vdu1:
     id: vdu1
-    vm_image: cirros-0.3.4-x86_64-uec
-    instance_type: m1.tiny
+    vm_image: sfc
+    instance_type: custom
     service_type: firewall
 
     network_interfaces:

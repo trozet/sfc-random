@@ -13,6 +13,7 @@ Vagrant.configure(2) do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "trozet/tacker_centos"
+  config.vm.box_version = "1.1"
   config.vm.synced_folder ".", "/vagrant", disabled: true
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -54,7 +55,7 @@ Vagrant.configure(2) do |config|
   #
   #   # Customize the amount of memory on the VM:
      vb.cpus = "2"
-     vb.memory = "8192"
+     vb.memory = "12288"
   end
   #
   # View the documentation for the provider you are using for more
