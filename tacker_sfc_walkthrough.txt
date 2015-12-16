@@ -34,7 +34,7 @@
     a.  sudo ln -s /usr/local/bin/* /bin/
 8. ./stack.sh
 9. Create the "net_mgmt" network:
-    a.  cp accrc/admin/admin accrc/admin/heat; and modify the OS_USERNAME="heat" and add
+    a.  cp accrc/admin/admin accrc/admin/heat; and modify the OS_USERNAME="heat", OS_PROJECT_NAME="service", and add
         export OS_TENANT_NAME="service"
     b.  source accrc/admin/heat
     c.  neutron net-create net_mgmt --provider:network_type=vxlan --provider:segmentation_id 1005
