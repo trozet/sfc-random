@@ -1,0 +1,7 @@
+---
+- name: Install Kernel Packages
+  yum: pkg={{kernel_repo_url}}{{item}} state=present
+  retries: 3
+  delay: 30
+  with_items: kernel_packages
+

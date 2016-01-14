@@ -1,0 +1,6 @@
+---
+- name: Upgrade Linux kernel
+  hosts: all:!localhost
+  sudo: yes
+  roles:
+    - { role: upgrade-kernel }

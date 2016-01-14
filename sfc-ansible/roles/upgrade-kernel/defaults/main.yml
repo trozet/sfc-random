@@ -1,0 +1,7 @@
+---
+kernel_version: 3.13
+kernel_repo_url: http://mirrors.neterra.net/elrepo/kernel/el6/x86_64/RPMS/
+kernel_packages:
+          - kernel-ml-devel-3.13.7-1.el6.elrepo.x86_64.rpm
+          - kernel-ml-3.13.7-1.el6.elrepo.x86_64.rpm
+          - kernel-ml-headers-3.13.7-1.el6.elrepo.x86_64.rpm
