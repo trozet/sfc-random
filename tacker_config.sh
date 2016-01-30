@@ -106,7 +106,7 @@ ExecStart=/usr/bin/tacker-server
 WantedBy=multi-user.target
 
 EOC
-chmod 644 /etc/systemd/system/multi-user.target.wants/openstack-tacker.service
+chmod 644 /usr/lib/systemd/system/openstack-tacker.service
 systemctl daemon-reload
 
 puppet apply configure_tacker.pp
