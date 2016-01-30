@@ -100,7 +100,8 @@ NotifyAccess=all
 TimeoutStartSec=0
 Restart=always
 User=root
-ExecStart=/usr/bin/tacker-server
+ExecStart=/etc/init.d/tacker-server start
+ExecStop=/etc/init.d/tacker-server stop
 
 [Install]
 WantedBy=multi-user.target
