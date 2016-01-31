@@ -58,6 +58,7 @@ sql_host=\$(hiera mysql_vip)
 admin_url="http://\$(hiera keystone_admin_api_vip):8888/"
 public_url="http://\$(hiera keystone_public_api_vip):8888/"
 allowed_hosts="[\"%\", \"\$(hiera mysql_bind_host)\"]"
+heat_uri="http://\$(hiera heat_api_vip):8004/v1"
 
 # setup local puppet module
 cat > configure_tacker.pp << EOC
@@ -71,6 +72,7 @@ cat > configure_tacker.pp << EOC
      database_connection   => '\${database_connection}',
      rabbit_host           => '\${rabbit_host}',
      rabbit_password       => '\${rabbit_password}',
+     heat_uri              => '\${heat_uri}',
    }
    
    class { 'tacker::db::mysql':
@@ -112,3 +114,15 @@ systemctl daemon-reload
 
 puppet apply configure_tacker.pp
 EOF
+
+# Create sfcrc
+rm -rf ./sfcrc
+scp ${SSH_OPTIONS[@]} "stack@$UNDERCLOUD":overcloudrc ./sfcrc
+sed -i 's/^.*OS_USERNAME.*$/export OS_USERNAME=tacker/' sfcrc
+sed -i 's/^.*OS_TENANT_NAME.*$/export OS_TENANT_NAME=service/' sfcrc
+sed -i 's/^.*OS_PASSWORD.*$/export OS_PASSWORD=tacker/' sfcrc
+echo "export OS_PROJECT_NAME=service" >> sfcrc
+# Copy sfcrc to controller
+scp ${SSH_OPTIONS[@]} ./sfcrc "heat-admin@$node":sfcrc
+
+echo "Tacker running on Controller: ${node}.  Please ssh heat-admin@${node} to access"

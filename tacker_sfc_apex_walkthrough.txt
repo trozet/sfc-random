@@ -1,0 +1,25 @@
+1. Deploy an OPNFV Apex deployment with the SFC scenario:
+    a.  Requires a CentOS 7 box with at least 16 GB of RAM, and 40 GB Disk Space, with ROOT access
+    b.  Download the latest Apex RPMs:
+           - opnfv-apex-opendaylight-sfc-2.1-{date}.noarch.rpm
+           - opnfv-apex-common-2.1-{date}.noarch.rpm
+           - opnfv-apex-undercloud-2.1-{date}.noarch.rpm
+    c.  Install RPMs.  Note, you should provide all 3 RPMs as arguments to yum: -y install <rpm1> <rpm2> <rpm3>
+    d.  opnfv-deploy -v -d /etc/opnfv-apex/os-odl_l2-sfc-noha.yaml -n /etc/opnfv-apex/network_settings.yaml
+    e.  This will take approximately 20-30 minutes depending on your system.
+
+2. Install/Configure/Start Tacker:
+    a.  git clone https://github.com/trozet/sfc-random.git
+    b.  ./sfc-random/tacker_config.sh
+    c.  At the end of the script, it will tell you to ssh as heat-admin to the control node.
+    d.  After connecting to the control node, source sfcrc.
+
+3. Create the "net_mgmt" (SFC) network:
+    a.  neutron net-create net_mgmt --provider:network_type=vxlan --provider:segmentation_id 1005
+    b.  neutron subnet-create net_mgmt 123.123.123.0/24
+
+4.  You may now follow the ./sfc-random/tacker_sfc_walkthrough starting from step #11
+
+To re-stack (execute on host server):
+1.  opnfv-clean (Note: this will destroy undercloud and overcloud)
+2.  Execute step 1d.
