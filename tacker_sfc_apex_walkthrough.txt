@@ -1,6 +1,6 @@
 1. Deploy an OPNFV Apex deployment with the SFC scenario:
     a.  Requires a CentOS 7 box with at least 16 GB of RAM, and 40 GB Disk Space, with ROOT access
-    b.  Download the latest Apex RPMs:
+    b.  Download the latest Apex RPMs from artifacts.opnfv.org:
            - opnfv-apex-opendaylight-sfc-2.1-{date}.noarch.rpm
            - opnfv-apex-common-2.1-{date}.noarch.rpm
            - opnfv-apex-undercloud-2.1-{date}.noarch.rpm
