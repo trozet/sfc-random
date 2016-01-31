@@ -4,7 +4,7 @@
            - opnfv-apex-opendaylight-sfc-2.1-{date}.noarch.rpm
            - opnfv-apex-common-2.1-{date}.noarch.rpm
            - opnfv-apex-undercloud-2.1-{date}.noarch.rpm
-    c.  Install RPMs.  Note, you should provide all 3 RPMs as arguments to yum: -y install <rpm1> <rpm2> <rpm3>
+    c.  Install RPMs.  Note, you should provide all 3 RPMs as arguments to yum: yum -y install <rpm1> <rpm2> <rpm3>
     d.  opnfv-deploy -v -d /etc/opnfv-apex/os-odl_l2-sfc-noha.yaml -n /etc/opnfv-apex/network_settings.yaml
     e.  This will take approximately 20-30 minutes depending on your system.
 
