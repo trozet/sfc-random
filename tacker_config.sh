@@ -40,7 +40,7 @@ rm -rf /etc/tacker
 mv -f etc/tacker /etc/
 chmod 755 /etc/tacker
 rm -f /etc/init.d/tacker-server
-mv -f init.d/tacker-server /etc/init.d/tacker-server
+mv -f etc/init.d/tacker-server /etc/init.d/tacker-server
 chmod 775 /etc/init.d/tacker-server
 popd
 # setup puppet-tacker
