@@ -14,11 +14,70 @@
     c.  At the end of the script, it will tell you to ssh as heat-admin to the control node.
     d.  After connecting to the control node, source sfcrc.
 
+*Note: The following steps are optional and are only for demo'ing SFC:
+
 3. Create the "net_mgmt" (SFC) network:
     a.  neutron net-create net_mgmt --provider:network_type=vxlan --provider:segmentation_id 1005
     b.  neutron subnet-create net_mgmt 123.123.123.0/24
 
-4.  You may now follow the ./sfc-random/tacker_sfc_walkthrough starting from step #11
+4. Create Glance SFC Image and custom Flavor
+    a.  wget https://www.dropbox.com/s/focu44sh52li7fz/sfc_cloud.qcow2
+    b.  openstack image create sfc --public --file ./sfc_cloud.qcow2
+    c.  openstack flavor create custom --ram 1000 --disk 5 --public
+
+5. Import VNFD for test-VNF:
+    a.  git clone https://github.com/trozet/sfc-random
+    b.  tacker vnfd-create --vnfd-file ./sfc-random/test-vnfd.yaml
+
+6. Deploy VNFs:
+    a.  tacker vnf-create --name testVNF1 --vnfd-name test-vnfd (note it may take 5-10 min to boot)
+    b.  Tacker will kick off creating the VNFs via Heat.  For some reason it does this as the service tenant.  So you
+        can check heat by using the "heat" user and doing "heat stack-list".
+    c.  Wait a few minutes and then check VNF status is ACTIVE: tacker vnf-list
+    d.  Login to horizon by entering the VM IP into your web browser as "tacker" password "tacker"
+    e.  Go to Compute->Instances.  Click on the tacker VNF instance.
+    f.  Click Console and login to the VNF with user "root", password "octopus"
+    g.  in the console: "service iptables stop"
+    g.  type "python ~/vxlan_tool/vxlan_tool.py -i eth0 -d forward -v on"
+
+7. Create HTTP Client and Server:
+    a.  Using either Horizon or CLI create a cirros instance named http_client, with default flavor (m1.tiny)
+    b.  For creating HTTP server you can create another instance using the sfc image (custom flavor), 1000MB
+        RAM and 5GB disk.  The image also supports cloud-init, so you can insert your SSH key as well.
+    c.  Login to the http_server, and disable iptables: "service iptables stop"
+    d.  Start simple python http server: "python -m SimpleHTTPServer 80"
+
+8. Create SFC via python client(will render the chain into ODL):
+    a.  tacker sfc-create --name mychain --chain testVNF1
+    b.  This will create a chain in ODL, with 1 Rendered Service Path
+    c.  tacker sfc-show mychain (check to make sure your SFC is now "Active")
+    d.  You can now see NSH flows added to OVS br-int by doing the following:
+        sudo ovs-ofctl -O OpenFlow13 dump-flows br-int
+
+9. Create SFC Classifier with netvirt
+    a.  tacker sfc-classifier-create --name myclass --chain mychain --match source_port=2000,dest_port=80,protocol=6
+    b.  This will create a classifier for matching HTTP traffic to go onto your chain
+    c.  Check OVS to see if you have hte classifier flow:
+        sudo ovs-ofctl dump-flows br-int -O openflow13 | grep tp_dst=80
+        tcp,reg0=0x1,tp_dst=80 actions=move:NXM_NX_TUN_ID[0..31]->NXM_NX_NSH_C2[],set_nshc1:0,set_nsp:0x2d,set_nsi:255,load:0xc0a80104->NXM_NX_TUN_IPV4_DST[],load:0x2d->NXM_NX_TUN_ID[0..31],output:6
+
+10. Ensure VXLAN workaround is configured on compute node
+    a.  In another terminal, virsh domiflist instack
+    b.  ssh stack@$(arp -a | grep $(virsh domiflist undercloud | grep default | awk '{print $5}') | grep -Eo "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+")
+    c.  You are now connected to the undercloud VM (installer VM).  Do "source stackrc"
+    d.  nova list | grep compute
+    e.  ssh heat-admin@<compute ip>
+    f.  sudo ifconfig br-int up
+    g.  sudo ip route add 123.123.123.0/24 dev br-int
+
+11. Test SFC!
+    a.  Go to horizon, click Compute->Instances, note the IP of the http server/http client
+    b.  Now click the VNF and go to its console
+    c.  On the VM terminal "ip netns list" to find the ID of the qdhcp namespace
+    d.  ip netns exec <qdhcp ns ID> ssh cirros@<http client ip>; password is cubswin:)
+    e.  Now in cirros, curl --local-port 2000 <http server ip>
+    f.  Verify you see packets being redirected through the SFC (hitting the VNF in the horizon console)
+    g.  Verify you receive 200 OK response from the http server
 
 To re-stack (execute on host server):
 1.  opnfv-clean (Note: this will destroy undercloud and overcloud)
