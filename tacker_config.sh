@@ -5,7 +5,7 @@
 
 SSH_OPTIONS=(-o StrictHostKeyChecking=no -o GlobalKnownHostsFile=/dev/null -o UserKnownHostsFile=/dev/null -o LogLevel=error)
 
-instack_mac=$(virsh domiflist instack | grep default | \
+instack_mac=$(virsh domiflist undercloud | grep default | \
                   grep -Eo "[0-9a-f\]+:[0-9a-f\]+:[0-9a-f\]+:[0-9a-f\]+:[0-9a-f\]+:[0-9a-f\]+")
 UNDERCLOUD=$(/usr/sbin/arp -e | grep ${instack_mac} | awk {'print $1'})
 
@@ -32,7 +32,7 @@ python setup.py install
 popd
 # setup tacker
 rm -rf tacker
-git clone https://github.com/trozet/tacker.git -b SFC_brahmaputra
+git clone https://github.com/trozet/tacker.git -b SFC_colorado
 pushd tacker
 python setup.py build
 python setup.py install
