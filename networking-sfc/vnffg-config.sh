@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
 #network setup not needed in devstack
 #openstack network create  net_mgmt --provider:network_type=vxlan --provider:segmentation_id 1005
@@ -48,15 +48,17 @@ tacker vnfd-create --vnfd-file ./test.yaml VNFD1
 tacker vnf-create testVNF1 --vnfd-name VNFD1
 #wget https://www.dropbox.com/s/focu44sh52li7fz/sfc_cloud.qcow2
 #openstack image create sfc --public --file ./sfc_cloud.qcow2 --disk-format qcow2
-openstack flavor create custom --ram 1000 --disk 5 --public
-openstack server create --flavor m1.tiny --image cirros-0.3.4-x86_64-uec --nic net-id=011cb92e-18c8-4d73-bc0d-5845b2b044d1 http_client
-#openstack server create --flavor custom --image sfc --nic net-id=011cb92e-18c8-4d73-bc0d-5845b2b044d1 http_server
+#openstack flavor create custom --ram 1000 --disk 5 --public
+
+net_mgmt_id=$(openstack network list | grep net_mgmt | awk '{print $2}')
+openstack server create --flavor m1.tiny --image cirros-0.3.4-x86_64-uec --nic net-id=$net_mgmt_id http_client
+openstack server create --flavor m1.tiny --image cirros-0.3.4-x86_64-uec --nic net-id=$net_mgmt_id http_server
 openstack security group rule create --egress default --protocol icmp
 openstack security group rule create --ingress default --protocol icmp
 openstack security group rule create --egress default
 openstack security group rule create --ingress default
 
-client_ip=$(nova list | grep http_client | grep -Eo [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)
+client_ip=$(nova list | grep http_client | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
 client_port_id=$(openstack port list | grep $client_ip | awk '{print $2}')
 
 cat > vnffgd.yaml << EOI
