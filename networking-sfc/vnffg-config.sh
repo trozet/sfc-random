@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
-#network setup not needed in devstack
-#openstack network create  net_mgmt --provider:network_type=vxlan --provider:segmentation_id 1005
-#openstack subnet create --network net_mgmt --subnet-range 123.123.123.0/24 test
+neutron net-create  net_sfc --provider:network_type=vxlan --provider:segmentation_id 1005
+openstack subnet create --network net_sfc --subnet-range 123.123.123.0/24 test
 cat > test.yaml << EOI
 tosca_definitions_version: tosca_simple_profile_for_nfv_1_0_0
 description: Demo example
@@ -39,7 +38,7 @@ topology_template:
     VL1:
       type: tosca.nodes.nfv.VL
       properties:
-        network_name: net_mgmt
+        network_name: net_sfc
         vendor: Tacker
 
 EOI
@@ -50,7 +49,7 @@ tacker vnf-create testVNF1 --vnfd-name VNFD1
 #openstack image create sfc --public --file ./sfc_cloud.qcow2 --disk-format qcow2
 #openstack flavor create custom --ram 1000 --disk 5 --public
 
-net_mgmt_id=$(openstack network list | grep net_mgmt | awk '{print $2}')
+net_mgmt_id=$(openstack network list | grep net_sfc | awk '{print $2}')
 openstack server create --flavor m1.tiny --image cirros-0.3.4-x86_64-uec --nic net-id=$net_mgmt_id http_client
 openstack server create --flavor m1.tiny --image cirros-0.3.4-x86_64-uec --nic net-id=$net_mgmt_id http_server
 openstack security group rule create --egress default --protocol icmp
@@ -58,7 +57,7 @@ openstack security group rule create --ingress default --protocol icmp
 openstack security group rule create --egress default
 openstack security group rule create --ingress default
 
-client_ip=$(nova list | grep http_client | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
+client_ip=$(openstack server list | grep http_client | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
 client_port_id=$(openstack port list | grep $client_ip | awk '{print $2}')
 
 cat > vnffgd.yaml << EOI
