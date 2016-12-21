@@ -22,7 +22,7 @@
 
 4. Create Glance SFC Image and custom Flavor
     a.  wget https://www.dropbox.com/s/focu44sh52li7fz/sfc_cloud.qcow2
-    b.  openstack image create sfc --public --file ./sfc_cloud.qcow2
+    b.  openstack image create sfc --public --file ./sfc_cloud.qcow2 --disk-format qcow2 --container-format bare
     c.  openstack flavor create custom --ram 1000 --disk 5 --public
 
 5. Import VNFD for test-VNF:
