@@ -38,7 +38,7 @@
     e.  Go to Compute->Instances.  Click on the tacker VNF instance.
     f.  Click Console and login to the VNF with user "root", password "octopus"
     g.  in the console: "service iptables stop"
-    g.  type "python ~/vxlan_tool/vxlan_tool.py -i eth0 -d forward -v on"
+    g.  type "python /root/vxlan_tool.py -i eth0 -d forward -v on"
 
 7. Create HTTP Client and Server:
     a.  Using either Horizon or CLI create a cirros instance named http_client, with default flavor (m1.tiny)
